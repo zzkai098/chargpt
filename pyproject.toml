@@ -1,0 +1,28 @@
+[project]
+name = "chargpt"
+version = "0.1.0"
+description = "A character-level GPT you can read in one sitting — a from-scratch Transformer, inspired by nanoGPT."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Zhankai Zhang" }]
+keywords = ["gpt", "transformer", "language-model", "nanogpt", "from-scratch", "deep-learning"]
+dependencies = ["torch>=2.0"]
+
+[project.optional-dependencies]
+dev = ["pytest", "numpy", "matplotlib", "jupyter"]
+
+[project.scripts]
+chargpt-train = "chargpt.train:main"
+chargpt-sample = "chargpt.sample:main"
+
+[project.urls]
+Homepage = "https://github.com/zzkai098/charGPT"
+Repository = "https://github.com/zzkai098/charGPT"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["chargpt"]
