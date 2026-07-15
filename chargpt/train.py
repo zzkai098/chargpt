@@ -1,4 +1,4 @@
-"""Train charGPT on a text file and save a checkpoint.
+F"""Train charGPT on a text file and save a checkpoint.
 
 Example
 -------
