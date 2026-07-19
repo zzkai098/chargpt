@@ -1,4 +1,4 @@
-F"""Train charGPT on a text file and save a checkpoint.
+"""Train charGPT on a text file and save a checkpoint.
 
 Example
 -------
@@ -7,8 +7,6 @@ Example
 The checkpoint should store the model's state_dict, the GPTConfig, and the
 tokenizer maps — everything sample.py needs to rebuild and run the model.
 
-The argparse plumbing and the device helper are provided. The training loop
-itself is left for you to write.
 """
 
 import argparse
@@ -37,10 +35,19 @@ def estimate_loss(model, train_data, val_data, block_size, batch_size, device, e
     Return a dict like {"train": float, "val": float}. Remember to switch the
     model to eval() while measuring and back to train() afterwards.
     """
-    # TODO
-    raise NotImplementedError
-
-
+    out = {}
+    model.eval()
+    for name, data in zip(["train", "val"], [train_data,val_data]):
+        losses = torch.zeros(eval_iters)
+        for i in range(eval_iters):
+            xb, yb = get_batch(data, block_size=block_size, batch_size=batch_size, device=device)            
+            logits, loss = model(xb, yb)            
+            losses[i] = loss.item()
+        out[name] = losses.mean().item()
+    model.train()
+    return out 
+            
+            
 def train(args):
     torch.manual_seed(args.seed)
     device = get_device()
@@ -59,17 +66,30 @@ def train(args):
     )
     model = GPT(config).to(device)
     print(f"model parameters: {model.num_params() / 1e6:.2f}M")
-
-    # TODO: build an AdamW optimizer over model.parameters() with lr=args.lr
-    # TODO: training loop for args.steps + 1 steps:
-    #         - every args.eval_interval steps, print estimate_loss(train/val)
-    #         - get_batch -> forward -> zero_grad -> loss.backward() -> optimizer.step()
-    # TODO: save a checkpoint dict to args.out with keys:
-    #         "model" (state_dict), "config", "stoi", "itos"
-    #       Save the state_dict, not the whole model object.
-    raise NotImplementedError
-
-
+    optimizer = torch.optim.AdamW(model.parameters(), lr = args.lr)
+    
+    for i in range(args.steps + 1):
+        if i % args.eval_interval == 0:
+            losses = estimate_loss(model, train_data, val_data, 
+                                   config.block_size, args.batch_size, device)
+            print(f"step {i}: train {losses['train']:.4f}  val {losses['val']:.4f}")
+        
+        xb, yb = get_batch(train_data, config.block_size, args.batch_size, device)
+        logits, loss = model(xb, yb)
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
+    
+    torch.save({
+        "model": model.state_dict(),
+        "config": config,
+        "stoi": tokenizer.stoi,
+        "itos": tokenizer.itos,
+        
+    }, args.out)
+    print(f"saved checkpoint to {args.out}")
+    
+    
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Train charGPT on a text file.")
     p.add_argument("--data", default="data/input.txt", help="path to training text")
