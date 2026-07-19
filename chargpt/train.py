@@ -80,6 +80,7 @@ def train(args):
         loss.backward()
         optimizer.step()
     
+    os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     torch.save({
         "model": model.state_dict(),
         "config": config,
@@ -93,7 +94,7 @@ def train(args):
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Train charGPT on a text file.")
     p.add_argument("--data", default="data/input.txt", help="path to training text")
-    p.add_argument("--out", default="ckpt.pt", help="checkpoint output path")
+    p.add_argument("--out", default="checkpoints/ckpt.pt", help="checkpoint output path")
     p.add_argument("--steps", type=int, default=5000)
     p.add_argument("--eval-interval", type=int, default=500)
     p.add_argument("--batch-size", type=int, default=32)
