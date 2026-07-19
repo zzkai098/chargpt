@@ -23,20 +23,30 @@ def load_model(ckpt_path, device):
     Return (model, tokenizer). Remember to put the model in eval() mode so
     dropout is off at inference time.
     """
-    # TODO: torch.load the checkpoint (map_location=device)
-    # TODO: GPT(ckpt["config"]) -> load_state_dict -> to(device) -> eval()
-    # TODO: rebuild a CharTokenizer from ckpt["stoi"] / ckpt["itos"]
-    #       (tip: CharTokenizer.__new__ lets you set stoi/itos without the original text)
-    # TODO: return (model, tokenizer)
-    raise NotImplementedError
+    ckpt = torch.load(ckpt_path, map_location=device)
+    
+    model = GPT(ckpt["config"])
+    model.load_state_dict(ckpt["model"])
+    model.to(device)
+    model.eval()
+    
+    tokenizer = CharTokenizer.__new__(CharTokenizer)
+    tokenizer.stoi = ckpt["stoi"]
+    tokenizer.itos = ckpt["itos"]
+    
+    return model, tokenizer
 
 
 def generate_text(model, tokenizer, device, prompt="", tokens=500, temperature=1.0, top_k=None):
     """Encode the prompt (or start from token 0), generate, and decode to a string."""
-    # TODO: build the starting idx tensor from the prompt (or zeros((1,1)) if empty)
-    # TODO: model.generate(...) then tokenizer.decode the first row
-    raise NotImplementedError
-
+    if len(prompt) == 0:
+        idx = torch.zeros((1,1), dtype=torch.long, device=device) #(1,1)
+    else:
+        idx = torch.tensor([tokenizer.encode(prompt)], dtype=torch.long, device=device) #(1, len)
+        
+    out = model.generate(idx, max_new_tokens=tokens, temperature=temperature, top_k=top_k)    
+    return tokenizer.decode(out[0].tolist())
+    
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Sample text from a charGPT checkpoint.")
