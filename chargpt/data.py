@@ -5,43 +5,44 @@ characters in the training text. Each character maps to an integer id, and back.
 
 `tests/test_data.py` is your spec — run `pytest` and fill in until green.
 """
-
-from pathlib import Path
-
 import torch
 
 
 class CharTokenizer:
     """Maps characters <-> integer ids based on the characters seen in a text."""
-
-    def __init__(self, text: str):
-        # TODO: build sorted list of unique chars, then stoi and itos dicts
-        raise NotImplementedError
-
+    def __init__(self, text:str):
+        self.chars = sorted(list(set(text)))
+        self.stoi = {ch:i for i, ch in enumerate(self.chars)}
+        self.itos = {i:ch for i, ch in enumerate(self.chars)}
+                
     @property
     def vocab_size(self) -> int:
-        # TODO: number of distinct characters
-        raise NotImplementedError
-
-    def encode(self, s: str) -> list:
-        """Turn a string into a list of int ids."""
-        # TODO
-        raise NotImplementedError
-
-    def decode(self, ids) -> str:
+        return len(self.chars)
+    
+    def encode(self, s:str) -> list[int]:
+        """Turn a string into a list of int id."""
+        return [self.stoi[ch] for ch in s]
+        
+    def decode(self, ids:list) -> str:
         """Turn a list/1-D tensor of int ids back into a string."""
-        # TODO
-        raise NotImplementedError
-
-
+        return "".join([self.itos[int(i)] for i in ids])
+      
+        
 def load_data(path, split: float = 0.9, device="cpu"):
     """Read a text file, build a tokenizer, and return (train, val, tokenizer).
-
     `train` and `val` are 1-D LongTensors of token ids on `device`.
     """
-    # TODO: read the file, build a CharTokenizer, encode to a LongTensor
-    # TODO: split at `split` and return (train, val, tokenizer)
-    raise NotImplementedError
+    assert 0 < split < 1, "split must be between 0 and 1"
+    
+    with open(path, 'r', encoding='utf-8') as f:
+        text = f.read()
+    
+    tok = CharTokenizer(text)
+    data = torch.tensor(tok.encode(text), dtype=torch.long, device=device)
+    n = int(split * len(data))
+    train = data[:n]
+    val = data[n:]
+    return train, val, tok
 
 
 def get_batch(data, block_size: int, batch_size: int, device="cpu"):
@@ -50,7 +51,8 @@ def get_batch(data, block_size: int, batch_size: int, device="cpu"):
     Returns x, y each of shape (batch_size, block_size). y is x shifted by one:
     the model predicts the next character at every position.
     """
-    # TODO: sample batch_size random start indices in [0, len(data) - block_size)
-    # TODO: x = data[i : i+block_size], y = data[i+1 : i+1+block_size], stacked
-    # TODO: move to device and return (x, y)
-    raise NotImplementedError
+    n = len(data)
+    idx = torch.randint(n - block_size, (batch_size,)) 
+    xb = torch.stack([data[i  : i+block_size  ] for i in idx]) #BT
+    yb = torch.stack([data[i+1: i+block_size+1] for i in idx]) #BT
+    return xb.to(device), yb.to(device)
