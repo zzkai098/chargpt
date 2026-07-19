@@ -19,3 +19,6 @@ data/input.txt
 .DS_Store
 .vscode/
 .idea/
+
+# Gradio demo cache
+.gradio/
