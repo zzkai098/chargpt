@@ -3,7 +3,6 @@
 There is no fancy tokenization here: the vocabulary is simply the set of unique
 characters in the training text. Each character maps to an integer id, and back.
 
-`tests/test_data.py` is your spec — run `pytest` and fill in until green.
 """
 import torch
 
