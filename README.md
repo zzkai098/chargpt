@@ -1,5 +1,7 @@
 # charGPT
 
+![charGPT — a character-level GPT trained on Shakespeare](assets/charGPTcover.jpg)
+
 A character-level GPT you can read in one sitting.
 
 `charGPT` is a small, from-scratch implementation of a decoder-only Transformer —
@@ -14,11 +16,16 @@ Train it on Tiny Shakespeare in a few minutes on a laptop and watch it go from
 random noise to (almost) readable Elizabethan English.
 
 ```
-KING RICHARD III:
-And then the crown of England to the sea,
-That we may see the world be satisfied.
+ROMEO:
+That is that ever that's broke death,
+That here a master more liberty cried,
+And noble love here may lie and my spur comfort.
+
+BUCKINGHAM:
+Look upon my master, yet stand as you supposed:
+You are very one't; as 'tis sad: or the judgment of you.
 ```
-<sub>Sample from a small model after a short training run.</sub>
+<sub>Real sample from a ~3M-parameter model (val loss ≈ 1.49) after training on Tiny Shakespeare.</sub>
 
 ## Install
 
@@ -58,6 +65,22 @@ python -m chargpt.sample --tokens 500 --prompt "ROMEO:"
 
 After `pip install`, the `chargpt-train` and `chargpt-sample` console commands do
 the same thing.
+
+**Prefer a GPU?** Open [`examples/colab_train.ipynb`](examples/colab_train.ipynb) in
+Google Colab to train the full ~11M-parameter model on a free T4 in a few minutes.
+
+## Train on your own text
+
+charGPT is data-agnostic — any UTF-8 text file works. Just point `--data` at it:
+
+```bash
+python -m chargpt.train --data path/to/your.txt --out checkpoints/mine.pt
+python -m chargpt.sample --ckpt checkpoints/mine.pt --prompt "..."
+```
+
+The vocabulary is built automatically from the characters in your file, so you can
+train on source code, poetry, song lyrics, or Chinese text. For large vocabularies
+(e.g. Chinese), bump `--n-embd` and give it more `--steps`.
 
 ## Use it from Python
 
@@ -112,6 +135,16 @@ character never peeks at the answer.
 
 A full, step-by-step walkthrough — from a counting bigram baseline up to the full
 Transformer — lives in [`examples/build_gpt.ipynb`](examples/build_gpt.ipynb).
+
+## Training
+
+A 3.26M-parameter model on Tiny Shakespeare — a few minutes on a Colab GPU:
+
+![training loss](assets/loss_curve.png)
+
+Validation loss bottoms out around **1.49** — roughly the ceiling for this ~1 MB
+dataset. Past that, a bigger model just overfits (`train` keeps dropping while
+`val` flattens) rather than generalizing better.
 
 ## Features
 
