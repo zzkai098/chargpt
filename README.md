@@ -138,13 +138,31 @@ Transformer — lives in [`examples/build_gpt.ipynb`](examples/build_gpt.ipynb).
 
 ## Training
 
-A 3.26M-parameter model on Tiny Shakespeare — a few minutes on a Colab GPU:
+The run below is a **3.26M-parameter** model — `block_size=256, n_embd=256,
+n_head=4, n_layer=4, dropout=0.2` — trained on Tiny Shakespeare for 5000 steps
+(a few minutes on a Colab GPU):
+
+```bash
+python -m chargpt.train --block-size 256 --n-embd 256 --n-head 4 --n-layer 4 \
+                        --dropout 0.2 --steps 5000
+```
 
 ![training loss](assets/loss_curve.png)
 
 Validation loss bottoms out around **1.49** — roughly the ceiling for this ~1 MB
 dataset. Past that, a bigger model just overfits (`train` keeps dropping while
 `val` flattens) rather than generalizing better.
+
+## Limitations & possible extensions
+
+- **No "save-best" checkpointing.** `train.py` saves once, after the final step,
+  so if validation loss bottoms out mid-run and then overfits, the saved model is
+  the last one — not the best. Tracking the lowest-val checkpoint (early stopping)
+  would be a small, worthwhile addition.
+- **Character-level only.** A byte-level BPE tokenizer would shorten sequences and
+  let the same architecture scale to larger corpora.
+- **Fixed context window.** `block_size` caps how far back the model can attend;
+  longer contexts cost O(T²) attention.
 
 ## Features
 

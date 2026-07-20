@@ -2,11 +2,10 @@
 
 Example
 -------
-    python -m chargpt.train --data data/input.txt --steps 5000 --out ckpt.pt
+    python -m chargpt.train --data data/input.txt --steps 5000 --out checkpoints/ckpt.pt
 
-The checkpoint should store the model's state_dict, the GPTConfig, and the
-tokenizer maps — everything sample.py needs to rebuild and run the model.
-
+The checkpoint stores the model's state_dict, the GPTConfig, and the tokenizer
+maps — everything sample.py needs to rebuild and run the model.
 """
 
 import argparse
@@ -32,8 +31,8 @@ def get_device() -> torch.device:
 def estimate_loss(model, train_data, val_data, block_size, batch_size, device, eval_iters=50):
     """Average loss over a few random batches of train and val (less noisy).
 
-    Return a dict like {"train": float, "val": float}. Remember to switch the
-    model to eval() while measuring and back to train() afterwards.
+    Returns a dict like {"train": float, "val": float}. Switches the model to
+    eval() while measuring and back to train() afterwards.
     """
     out = {}
     model.eval()

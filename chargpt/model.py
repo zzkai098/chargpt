@@ -25,7 +25,7 @@ class GPTConfig:
     block_size:int = 256     # context length T: how many past chars the model sees
     n_embd:int = 128         # embedding / channel dimension C
     n_head:int = 4           # number of attention heads (must divide n_embd)
-    n_layer:int = 6          # number of Blocks (MultiHeadAttention + FeedFord)
+    n_layer:int = 6          # number of Blocks (MultiHeadAttention + FeedForward)
     dropout:float = 0.1
     
     def __post_init__(self):
@@ -144,7 +144,7 @@ class GPT(nn.Module):
         pos_embd = self.position_embedding_table(torch.arange(T, device=idx.device)) # (T, n_embd)
         x = tok_embd + pos_embd # (B, T, n_embd) Now the vec contain x info and pos info
         
-        x = self.blocks(x) # n_layer times (MultiHeadattention + Feedforward) (B, T, n_embd)
+        x = self.blocks(x) # n_layer times (MultiHeadAttention + FeedForward) (B, T, n_embd)
         logits = self.lm_head(x) # (B, T, n_embd) -> # (B, T, vocab_size) 
         
         if targets is None:

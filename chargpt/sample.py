@@ -2,10 +2,10 @@
 
 Example
 -------
-    python -m chargpt.sample --ckpt ckpt.pt --tokens 500 --prompt "ROMEO:"
+    python -m chargpt.sample --ckpt checkpoints/ckpt.pt --tokens 500 --prompt "ROMEO:"
 
-The argparse plumbing and main() wiring are provided. Fill in load_model and
-generate_text to match the checkpoint format you save in train.py.
+`load_model` rebuilds the GPT and tokenizer from the checkpoint written by
+`train.py`; `generate_text` encodes the prompt, samples, and decodes back to text.
 """
 
 import argparse
