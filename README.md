@@ -66,6 +66,10 @@ python -m chargpt.sample --tokens 500 --prompt "ROMEO:"
 After `pip install`, the `chargpt-train` and `chargpt-sample` console commands do
 the same thing.
 
+**Don't want to train?** Download a pretrained `ckpt.pt` (3.26M params, val loss
+≈ 1.49) from the [Releases](../../releases) page, drop it in `checkpoints/`, and
+skip straight to step 3.
+
 **Prefer a GPU?** Open [`examples/colab_train.ipynb`](examples/colab_train.ipynb) in
 Google Colab to train the full ~11M-parameter model on a free T4 in a few minutes.
 
