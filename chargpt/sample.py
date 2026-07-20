@@ -23,7 +23,9 @@ def load_model(ckpt_path, device):
     Return (model, tokenizer). Remember to put the model in eval() mode so
     dropout is off at inference time.
     """
-    ckpt = torch.load(ckpt_path, map_location=device)
+    # weights_only=False: the checkpoint stores a GPTConfig object, which the
+    # PyTorch 2.6+ safe loader rejects by default. Safe here — it's our own file.
+    ckpt = torch.load(ckpt_path, map_location=device, weights_only=False)
     
     model = GPT(ckpt["config"])
     model.load_state_dict(ckpt["model"])
@@ -50,7 +52,7 @@ def generate_text(model, tokenizer, device, prompt="", tokens=500, temperature=1
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Sample text from a charGPT checkpoint.")
-    p.add_argument("--ckpt", default="ckpt.pt", help="checkpoint path")
+    p.add_argument("--ckpt", default="checkpoints/ckpt.pt", help="checkpoint path")
     p.add_argument("--prompt", default="", help="optional starting text")
     p.add_argument("--tokens", type=int, default=500, help="how many chars to generate")
     p.add_argument("--temperature", type=float, default=1.0)
