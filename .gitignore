@@ -22,3 +22,6 @@ data/input.txt
 
 # Gradio demo cache
 .gradio/
+
+# Source art for the README hero image (not needed in the repo)
+assets/Shakespeare_Droeshout_1623_From_the_First_Folio_Edition.jpg
