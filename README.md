@@ -195,8 +195,9 @@ python -m pytest -v          # run the test suite
 ```
 
 The tests cover tensor shapes, that the causal mask actually blocks the future,
-that `generate()` never leaves the vocabulary or over-runs the context window, and
-that the tokenizer round-trips exactly.
+that `generate()` never leaves the vocabulary or over-runs the context window,
+that the tokenizer round-trips exactly, and that a checkpoint reloads to an
+identical model and tokenizer.
 
 ## Project layout
 
@@ -204,20 +205,28 @@ that the tokenizer round-trips exactly.
 charGPT/
 ├── chargpt/
 │   ├── __init__.py
-│   ├── model.py       # the Transformer: Head / MultiHeadAttention / Block / GPT
-│   ├── data.py        # CharTokenizer + batch loader
-│   ├── train.py       # training loop + CLI, saves a state_dict checkpoint
-│   └── sample.py      # load a checkpoint and generate text
+│   ├── model.py          # the Transformer: Head / MultiHeadAttention / Block / GPT
+│   ├── data.py           # CharTokenizer + batch loader
+│   ├── train.py          # training loop + CLI, saves a state_dict checkpoint
+│   └── sample.py         # load a checkpoint and generate text
 ├── tests/
 │   ├── test_model.py     # shapes, causal masking, generation bounds
 │   └── test_data.py      # encode/decode round-trip, batch shapes
 ├── examples/
-│   └── build_gpt.ipynb   # bigram → self-attention → full GPT, step by step
+│   ├── build_gpt.ipynb   # bigram → self-attention → full GPT, step by step
+│   ├── colab_train.ipynb # train the full model on a free Colab GPU
+│   └── app.py            # Gradio web demo (needs a trained checkpoint)
 ├── data/
 │   └── download.py       # fetch Tiny Shakespeare
 ├── assets/               # figures used in this README
+├── pyproject.toml
+├── LICENSE
 └── README.md
 ```
+
+`examples/` also keeps the incremental scripts and notebooks from building the
+model up (`bigram*.py`, `self_attention.ipynb`, `multi_head_attention.ipynb`, …) —
+handy if you want to retrace the path from a counting baseline to the full GPT.
 
 ## License
 
